@@ -2,6 +2,8 @@ package com.chatboard.wrapper;
 
 import javax.security.auth.login.LoginException;
 
+import com.chatboard.adapter.BotAdapter;
+
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -28,6 +30,7 @@ public class JDAWrapper {
     
     public static void initialize(String token) throws LoginException {
         jda = new JDABuilder(AccountType.BOT).setToken(token).build();
+        jda.addEventListener(new BotAdapter());
     }
     public static JDA getJDA() {
         return jda;
