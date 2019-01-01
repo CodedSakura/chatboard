@@ -7,11 +7,12 @@ public class Main {
 	
     public static void main(String... args) {
         
-        String token = args[0];              // Takes the token as an argument
+        String token = args[0];             // Takes the token as an argument
         try {
-            JDAWrapper.initialize(token);    // Initializes the JDA in the JDA wrapper
+            JDAWrapper.initialize(token);   // Initializes the JDA in the JDA wrapper
         } catch(Exception e) {
-    	    System.exit(-1);
+            e.printStackTrace();
+            System.exit(-1);                // In case of exception - exit the program
         }
         
     }
