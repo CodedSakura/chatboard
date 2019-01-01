@@ -8,8 +8,8 @@ public class Main {
 	
     public static void main(String... args) throws LoginException {
     	
-    	String token = args[0];			// Takes the token as an argument
-    	JDAWrapper.initialize(token);	// Initializes the JDA in the JDA wrapper
+    	String token = args[0];				// Takes the token as an argument
+    	JDAWrapper.initialize(token);		// Initializes the JDA in the JDA wrapper
     	
     }
     
