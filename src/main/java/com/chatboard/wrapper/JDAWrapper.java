@@ -6,6 +6,11 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 
+/**
+ * Keeps the universal JDA that is used
+ * throughout the whole project in an
+ * accessible wrapper class
+ */
 public class JDAWrapper {
 
 	/**
