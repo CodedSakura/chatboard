@@ -22,7 +22,7 @@ public class ParserUtils {
      */
     public static void runner(Class<?> c, Object[] args) {
         Method[] methods = c.getMethods();
-        Stack<Method> possibleMethods = new Stack();
+        Stack<Method> possibleMethods = new Stack<Method>();
         
         for(Method m : methods) {
             if(!m.isAnnotationPresent(Runner.class)) {
