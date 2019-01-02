@@ -10,6 +10,7 @@ import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
 import com.chatboard.exceptions.InvalidSyntaxException;
+import com.chatboard.exceptions.ObscurityException;
 import com.chatboard.wrapper.JDAWrapper;
 
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -63,7 +64,7 @@ public class ParserUtils {
         }
         
         if(possibleMethods.size() > 1) {
-            
+            throw new ObscurityException("Multiple fitting commands found");
         }
         if(possibleMethods.size() == 0) {
             

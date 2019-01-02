@@ -10,7 +10,9 @@ public class InvalidSyntaxException extends BotException {
     
     
     
-    protected InvalidSyntaxException() {}
+    public InvalidSyntaxException() {
+        super();
+    }
 
     public InvalidSyntaxException(String message) {
         super(message);

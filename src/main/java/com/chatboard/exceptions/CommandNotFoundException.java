@@ -6,7 +6,9 @@ public class CommandNotFoundException extends BotException {
     
     
     
-    protected CommandNotFoundException() {}
+    public CommandNotFoundException() {
+        super();
+    }
 
     public CommandNotFoundException(String message) {
         super(message);

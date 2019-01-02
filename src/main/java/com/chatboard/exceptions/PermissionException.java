@@ -10,7 +10,9 @@ public class PermissionException extends BotException {
     
     
     
-    protected PermissionException() {}
+    public PermissionException() {
+        super();
+    }
 
     public PermissionException(String message) {
         super(message);

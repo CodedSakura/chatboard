@@ -11,7 +11,9 @@ public class BotException extends RuntimeException {
     
     
     
-    protected BotException() {}
+    public BotException() {
+        super();
+    }
 
     public BotException(String message) {
         super(message);

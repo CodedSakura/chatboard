@@ -6,7 +6,9 @@ public class ObscurityException extends BotException {
     
     
     
-    protected ObscurityException() {}
+    public ObscurityException() {
+        super();
+    }
 
     public ObscurityException(String message) {
         super(message);
