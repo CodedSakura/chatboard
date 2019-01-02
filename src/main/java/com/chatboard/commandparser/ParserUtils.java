@@ -10,6 +10,7 @@ import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
 import com.chatboard.exceptions.InvalidSyntaxException;
+import com.chatboard.wrapper.JDAWrapper;
 
 /**
  * A utility class for parsing & routing commands
@@ -60,20 +61,17 @@ public class ParserUtils {
         ArrayList<Object> out = new ArrayList<>();
         m.find();
         while (m.find()) {
-            String d = m.group();
+            String d = m.group().trim();
             if (d.matches("\".*?((?<!\\\\)\")")) {
-                out.add(
-                        d
-                                .replaceAll("\\\\n", "\n")
-                                .replaceAll("\\\\\"", "\"")
-                                .replaceAll("^.|.$", "")
-                );
+                out.add(d.replaceAll("^\"|\"$", "")
+                        .replaceAll("\\\\n", "\n")
+                        .replaceAll("\\\\\"", "\""));
             } else if (d.matches("[a-zA-Z][a-zA-Z\\d]*")) {
-                out.add(new Mode(d.trim()));
+                out.add(new Mode(d));
             } else if (d.matches("<@\\d{18}>")) {
-                out.add(d.trim()); // TODO: convert to User object
+                out.add(JDAWrapper.getJDA().getUserById(d.replaceAll("^(<@)|>$", "")));
             } else if (d.matches("\\d+")) {
-                out.add(Integer.parseInt(d.trim()));
+                out.add(Integer.parseInt(d));
             } else throw new InvalidSyntaxException("");
         }
         return out.toArray();
