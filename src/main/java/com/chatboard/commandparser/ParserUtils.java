@@ -12,6 +12,9 @@ import com.chatboard.annotation.Runner;
 import com.chatboard.exceptions.InvalidSyntaxException;
 import com.chatboard.wrapper.JDAWrapper;
 
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+
 /**
  * A utility class for parsing & routing commands
  */
@@ -25,7 +28,15 @@ public class ParserUtils {
      * class of the command, checks permissions
      * and executes it
      */
-    public static void runner(Class<?> c, Object[] args) {
+    public static void runner(Class<? extends Command> c, TextChannel tc, User u, Object[] args) {
+        
+        Command com = null;
+        try {
+            com = c.getConstructor().newInstance(new Object[] {});
+        } catch (Exception e) {
+            return;
+        }
+        
         Method[] methods = c.getMethods();
         Stack<Method> possibleMethods = new Stack<Method>();
         
@@ -42,6 +53,13 @@ public class ParserUtils {
             }
             
             possibleMethods.push(m);
+            try {
+                com.setTextChannel(tc);
+                com.setUser(u);
+                
+                m.invoke(com, args);
+            } catch (Exception e) {}
+            return;
         }
         
         if(possibleMethods.size() > 1) {
