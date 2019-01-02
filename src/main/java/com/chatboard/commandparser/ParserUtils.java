@@ -6,6 +6,7 @@ import java.util.Stack;
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
+import com.chatboard.exceptions.ObscurityException;
 
 /**
  * A utility class for parsing & routing commands
@@ -20,7 +21,7 @@ public class ParserUtils {
      * class of the command, checks permissions
      * and executes it
      */
-    public static void runner(Class<?> c, Object[] args) {
+    public static void runner(Class<?> c, Object[] args) throws ObscurityException {
         Method[] methods = c.getMethods();
         Stack<Method> possibleMethods = new Stack<Method>();
         
@@ -40,7 +41,7 @@ public class ParserUtils {
         }
         
         if(possibleMethods.size() > 1) {
-            
+            throw new ObscurityException("Multiple possible command signatures found");
         }
         if(possibleMethods.size() == 0) {
             
