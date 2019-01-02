@@ -10,6 +10,7 @@ public class BotAdapter extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent evt) {
         String message = evt.getMessage().getContentRaw();
+        
         if(!message.startsWith(">")) {
             return;
         }

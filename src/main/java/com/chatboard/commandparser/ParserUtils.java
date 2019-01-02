@@ -2,6 +2,7 @@ package com.chatboard.commandparser;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +14,7 @@ import com.chatboard.exceptions.InvalidSyntaxException;
 import com.chatboard.exceptions.ObscurityException;
 import com.chatboard.wrapper.JDAWrapper;
 
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
@@ -49,8 +51,10 @@ public class ParserUtils {
                 continue;
             }
             if(!m.isAnnotationPresent(NoAdmin.class)) {
-                continue;
-                // TODO Set up permission checking
+                List<Role> userRoles = JDAWrapper.getGuild().getMember(u).getRoles();
+                if(!userRoles.contains(JDAWrapper.getGuild().getRoleById("529767478260400157"))) {
+                    continue;
+                }
             }
             
             possibleMethods.push(m);
@@ -64,7 +68,7 @@ public class ParserUtils {
         }
         
         if(possibleMethods.size() > 1) {
-            throw new ObscurityException("Multiple fitting commands found");
+            throw new ObscurityException();
         }
         if(possibleMethods.size() == 0) {
             
