@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 public @interface AllowedModes {
     
-    String[] modes();
+    public String[] modes();
     
     @Retention(RUNTIME)
     @Target({METHOD})
