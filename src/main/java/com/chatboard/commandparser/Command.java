@@ -10,17 +10,17 @@ public class Command {
     
     
     
-    public User getContextUser() {
+    public User getUser() {
         return contextUser;
     }
-    public void setContextUser(User contextUser) {
-        this.contextUser = contextUser;
+    public void setUser(User user) {
+        this.contextUser = user;
     }
-    public TextChannel getContextTextChannel() {
+    public TextChannel getTextChannel() {
         return contextTextChannel;
     }
-    public void setContextTextChannel(TextChannel contextTextChannel) {
-        this.contextTextChannel = contextTextChannel;
+    public void setTextChannel(TextChannel textChannel) {
+        this.contextTextChannel = textChannel;
     }
     
 }
