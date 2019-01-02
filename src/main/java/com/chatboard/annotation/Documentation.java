@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
  * to retrieve their documentation
  */
 public @interface Documentation {
-    String syntax();
-    String explanation();
+    public String syntax();
+    public String explanation();
 }
