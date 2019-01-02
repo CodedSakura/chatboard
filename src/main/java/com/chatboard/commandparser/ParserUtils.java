@@ -1,6 +1,7 @@
 package com.chatboard.commandparser;
 
 import java.lang.reflect.Method;
+import java.util.Stack;
 
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
@@ -21,6 +22,7 @@ public class ParserUtils {
      */
     public static void runner(Class<?> c, Object[] args) {
         Method[] methods = c.getMethods();
+        Stack<Method> possibleMethods = new Stack();
         
         for(Method m : methods) {
             if(!m.isAnnotationPresent(Runner.class)) {
@@ -33,6 +35,14 @@ public class ParserUtils {
                 continue;
                 // TODO Set up permission checking
             }
+            
+            possibleMethods.push(m);
+        }
+        
+        if(possibleMethods.size() > 1) {
+            
+        }
+        if(possibleMethods.size() == 0) {
             
         }
     }
