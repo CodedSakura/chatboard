@@ -3,6 +3,7 @@ package com.chatboard.commandparser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import com.chatboard.commands.*;
+import com.chatboard.exceptions.CommandNotFoundException;
 
 public enum Commands {
     
@@ -23,15 +24,14 @@ public enum Commands {
     
     
     public void run(String arguments, TextChannel tc, User u) {
-        Object[] args = ParserUtils.parser(arguments);
-        ParserUtils.runner(c, tc, u, args);
+        ParserUtils.parseAndRun(arguments, tc, u, c);
     }
     public static Commands[] getAllCommands() {
         return Commands.class.getEnumConstants();
     }
-    public static Commands getMatchingCommand(String command) {
+    public static Commands getMatchingCommand(String command) throws CommandNotFoundException {
         if(command == null) {
-            return null;
+            throw new CommandNotFoundException();
         }
         
         String c = command.split(" ")[0].toUpperCase();
@@ -43,7 +43,7 @@ public enum Commands {
                 return com;
             }
         }
-        return null;
+        throw new CommandNotFoundException();
      }
     
 }

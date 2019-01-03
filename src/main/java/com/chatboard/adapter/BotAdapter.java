@@ -1,7 +1,6 @@
 package com.chatboard.adapter;
 
-import com.chatboard.commandparser.Commands;
-
+import com.chatboard.commandparser.CommandFlowExecutor;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -15,11 +14,7 @@ public class BotAdapter extends ListenerAdapter {
             return;
         }
         
-        Commands c = Commands.getMatchingCommand(message);
-        if(c == null) {
-            return;
-        }
-        c.run(message, evt.getChannel(), evt.getAuthor());
+        CommandFlowExecutor.executeCommandFlow(message, evt.getChannel(), evt.getAuthor());
     }
 
 }

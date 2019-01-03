@@ -1,17 +1,20 @@
 package com.chatboard.commandparser;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
+import com.chatboard.exceptions.CommandNotFoundException;
+import com.chatboard.exceptions.InvalidParametersException;
 import com.chatboard.exceptions.InvalidSyntaxException;
-import com.chatboard.exceptions.ObscurityException;
+import com.chatboard.exceptions.PermissionException;
 import com.chatboard.wrapper.JDAWrapper;
 
 import net.dv8tion.jda.core.entities.Role;
@@ -27,7 +30,18 @@ public class ParserUtils {
     
     
     /**
-     * Finds the appropriate run method for the
+     * Handles both the parsing and execution of a command
+     */
+    public static void parseAndRun(String arguments, TextChannel tc, User u, Class<? extends Command> c) {
+        Object[] args;
+        
+        args = parser(arguments);
+        runner(c, tc, u, args);
+        
+    }
+    
+    /**
+     * Finds the appropriate runner method for the
      * class of the command, checks permissions
      * and executes it
      */
@@ -40,39 +54,69 @@ public class ParserUtils {
             return;
         }
         
+        // If the whole command class is marked as disabled,
+        // consider the command as non-existent
+        if(c.isAnnotationPresent(Disabled.class)) {
+            throw new CommandNotFoundException();
+        }
+        
+        // Stores the parameter types of the passed arguments
+        // in an array for future comparison
+        Class<?>[] argTypes = new Class[args.length];
+        
+        // Fills the array
+        for(int i = 0; i < args.length; i++) {
+            argTypes[i] = args[i].getClass();
+        }
+        
+        // Retrieves all methods of a class
         Method[] methods = c.getMethods();
-        Stack<Method> possibleMethods = new Stack<Method>();
         
         for(Method m : methods) {
+            
+            // If a method is not a runner method - ignores it
             if(!m.isAnnotationPresent(Runner.class)) {
                 continue;
             }
+            
+            // Checks if the method is disabled - if so, ignores it
             if(m.isAnnotationPresent(Disabled.class)) {
                 continue;
             }
+            
+            // Checks if the parameter types match
+            if(!Arrays.equals(argTypes, m.getParameterTypes())) {
+                continue;
+            }
+            
+            // If the "NoAdmin" annotation is NOT present,
+            // checks if the user is an admin - if not,
+            // access is denied
             if(!m.isAnnotationPresent(NoAdmin.class)) {
                 List<Role> userRoles = JDAWrapper.getGuild().getMember(u).getRoles();
                 if(!userRoles.contains(JDAWrapper.getGuild().getRoleById("529767478260400157"))) {
-                    continue;
+                    throw new PermissionException();
                 }
             }
             
-            possibleMethods.push(m);
+            // Tries to execute the command
+            com.setTextChannel(tc);
+            com.setUser(u);
             try {
-                com.setTextChannel(tc);
-                com.setUser(u);
-                
                 m.invoke(com, args);
-            } catch (Exception e) {}
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                return;
+            } catch(Exception e) {
+                throw e;
+            }
+            
             return;
         }
         
-        if(possibleMethods.size() > 1) {
-            throw new ObscurityException();
-        }
-        if(possibleMethods.size() == 0) {
-            
-        }
+        // The command was found, but the parameters did not match
+        InvalidParametersException ipe = new InvalidParametersException();
+        ipe.setFoundParameters(argTypes);
+        throw ipe;
     }
     
     /**
