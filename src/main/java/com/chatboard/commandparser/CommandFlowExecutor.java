@@ -46,7 +46,8 @@ public class CommandFlowExecutor {
         } catch(BotException e) {
             sendErrorMessage(e.getFriendlyName(), e.getMessage(), tc, u);
             return;
-        } catch(Exception e) {
+        } catch(Throwable e) {
+            e.printStackTrace();
             return;
         }
     }

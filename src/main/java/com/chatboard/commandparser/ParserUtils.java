@@ -32,7 +32,7 @@ public class ParserUtils {
     /**
      * Handles both the parsing and execution of a command
      */
-    public static void parseAndRun(String arguments, TextChannel tc, User u, Class<? extends Command> c) {
+    public static void parseAndRun(String arguments, TextChannel tc, User u, Class<? extends Command> c) throws Throwable {
         Object[] args;
         
         args = parser(arguments);
@@ -45,7 +45,7 @@ public class ParserUtils {
      * class of the command, checks permissions
      * and executes it
      */
-    public static void runner(Class<? extends Command> c, TextChannel tc, User u, Object[] args) {
+    public static void runner(Class<? extends Command> c, TextChannel tc, User u, Object[] args) throws Throwable {
         
         Command com = null;
         try {
@@ -109,11 +109,11 @@ public class ParserUtils {
             com.setTextChannel(tc);
             com.setUser(u);
             try {
-                m.invoke(com, args);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                  m.invoke(com, args);
+            } catch (IllegalAccessException | IllegalArgumentException e) {
                 return;
-            } catch(Exception e) {
-                throw e;
+            } catch(InvocationTargetException e) {
+                throw e.getTargetException();
             }
             
             return;

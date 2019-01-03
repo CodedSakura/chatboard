@@ -2,12 +2,14 @@ package com.chatboard.commandparser;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+
+
 import com.chatboard.commands.*;
 import com.chatboard.exceptions.CommandNotFoundException;
 
 public enum Commands {
     
-    HELP (null),
+    HELP (Help.class),
     D20  (null),
     PING (Ping.class);
     
@@ -23,7 +25,7 @@ public enum Commands {
     
     
     
-    public void run(String arguments, TextChannel tc, User u) {
+    public void run(String arguments, TextChannel tc, User u) throws Throwable {
         ParserUtils.parseAndRun(arguments, tc, u, c);
     }
     public static Commands[] getAllCommands() {
