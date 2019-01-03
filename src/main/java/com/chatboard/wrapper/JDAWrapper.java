@@ -33,8 +33,10 @@ public class JDAWrapper {
     
     
     
-    public static void initialize(String token) throws LoginException {
+    public static void initialize(String token) throws LoginException, InterruptedException {
         jda = new JDABuilder(AccountType.BOT).setToken(token).build();
+        jda.awaitReady();
+        
         jda.addEventListener(new BotAdapter());
         
         guild = jda.getGuildById("529758581810266134");

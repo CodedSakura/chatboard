@@ -94,7 +94,13 @@ public class ParserUtils {
             // access is denied
             if(!m.isAnnotationPresent(NoAdmin.class)) {
                 List<Role> userRoles = JDAWrapper.getGuild().getMember(u).getRoles();
-                if(!userRoles.contains(JDAWrapper.getGuild().getRoleById("529767478260400157"))) {
+                boolean isAdmin = false;
+                for(Role r : userRoles) {
+                    if(r.getId().equals("529767478260400157")) {
+                        isAdmin = true;
+                    }
+                }
+                if(!isAdmin) {
                     throw new PermissionException();
                 }
             }
