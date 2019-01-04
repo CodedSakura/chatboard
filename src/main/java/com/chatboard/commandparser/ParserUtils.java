@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,9 +14,9 @@ import com.chatboard.exceptions.CommandNotFoundException;
 import com.chatboard.exceptions.InvalidParametersException;
 import com.chatboard.exceptions.InvalidSyntaxException;
 import com.chatboard.exceptions.PermissionException;
+import com.chatboard.util.RoleUtil;
 import com.chatboard.wrapper.JDAWrapper;
 
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
@@ -93,14 +92,7 @@ public class ParserUtils {
             // checks if the user is an admin - if not,
             // access is denied
             if(!m.isAnnotationPresent(NoAdmin.class)) {
-                List<Role> userRoles = JDAWrapper.getGuild().getMember(u).getRoles();
-                boolean isAdmin = false;
-                for(Role r : userRoles) {
-                    if(r.getId().equals("529767478260400157")) {
-                        isAdmin = true;
-                    }
-                }
-                if(!isAdmin) {
+                if(!RoleUtil.isAdmin(u)) {
                     throw new PermissionException();
                 }
             }

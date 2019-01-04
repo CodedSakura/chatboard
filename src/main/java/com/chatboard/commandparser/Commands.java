@@ -3,7 +3,11 @@ package com.chatboard.commandparser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
+import java.lang.reflect.Method;
 
+import com.chatboard.annotation.Disabled;
+import com.chatboard.annotation.NoAdmin;
+import com.chatboard.annotation.Runner;
 import com.chatboard.commands.*;
 import com.chatboard.exceptions.CommandNotFoundException;
 
@@ -28,6 +32,22 @@ public enum Commands {
     public void run(String arguments, TextChannel tc, User u) throws Throwable {
         ParserUtils.parseAndRun(arguments, tc, u, c);
     }
+    public boolean hasNoAdminMethods() {
+        if(c == null) {
+            return false;
+        }
+        if(c.isAnnotationPresent(Disabled.class)) {
+            return false;
+        }
+        for(Method m : c.getMethods()) {
+            if(m.isAnnotationPresent(Runner.class) && m.isAnnotationPresent(NoAdmin.class)) {
+                if(!m.isAnnotationPresent(Disabled.class)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public static Commands[] getAllCommands() {
         return Commands.class.getEnumConstants();
     }
@@ -46,6 +66,6 @@ public enum Commands {
             }
         }
         throw new CommandNotFoundException();
-     }
+    }
     
 }
