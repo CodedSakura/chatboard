@@ -1,4 +1,4 @@
-package com.chatboard.commandparser;
+package com.chatboard.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,8 +14,9 @@ import com.chatboard.exceptions.CommandNotFoundException;
 import com.chatboard.exceptions.InvalidParametersException;
 import com.chatboard.exceptions.InvalidSyntaxException;
 import com.chatboard.exceptions.PermissionException;
-import com.chatboard.util.RoleUtil;
 import com.chatboard.wrapper.JDAWrapper;
+import com.chatboard.commandparser.Command;
+import com.chatboard.commandparser.Mode;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
