@@ -9,4 +9,8 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target({ TYPE, METHOD })
+/**
+ * Used to show that a runner method or a
+ * whole command class is not active
+ */
 public @interface Disabled {}
