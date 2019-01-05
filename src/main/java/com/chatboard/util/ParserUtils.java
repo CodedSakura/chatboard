@@ -47,6 +47,7 @@ public class ParserUtils {
      */
     public static void runner(Class<? extends Command> c, TextChannel tc, User u, Object[] args) throws Throwable {
         
+        // Creates an instance of the given command class
         Command com = null;
         try {
             com = c.getConstructor().newInstance(new Object[] {});

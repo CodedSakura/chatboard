@@ -8,6 +8,7 @@ import com.chatboard.util.RoleUtil;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 
+@HelpText(value = "Shows a list of commands or gives help on a specific one")
 public class Help extends Command {
 
     @Runner @NoAdmin
