@@ -4,18 +4,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.chatboard.annotation.ArgNames;
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
+import com.chatboard.annotation.Restricted;
 import com.chatboard.annotation.Runner;
 import com.chatboard.exceptions.CommandNotFoundException;
 import com.chatboard.exceptions.InvalidParametersException;
 import com.chatboard.exceptions.InvalidSyntaxException;
 import com.chatboard.exceptions.PermissionException;
+import com.chatboard.exceptions.RestrictionException;
 import com.chatboard.wrapper.JDAWrapper;
 import com.chatboard.commandparser.Command;
+import com.chatboard.commandparser.FriendlyTypeName;
 import com.chatboard.commandparser.Mode;
 
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -73,6 +78,9 @@ public class ParserUtils {
         // Retrieves all methods of a class
         Method[] methods = c.getMethods();
         
+        // Creates a stack to store appropriate methods in
+        Stack<Method> stack = new Stack<>();
+        
         for(Method m : methods) {
             
             // If a method is not a runner method - ignores it
@@ -90,18 +98,47 @@ public class ParserUtils {
                 continue;
             }
             
-            // If the "NoAdmin" annotation is NOT present,
-            // checks if the user is an admin - if not,
-            // access is denied
+            // Pushes the method onto the stack
+            stack.push(m);
+            
+        }
+        
+        if(stack.isEmpty()) {
+            // The command was found, but the parameters did not match
+            InvalidParametersException ipe = new InvalidParametersException();
+            ipe.setFoundParameters(argTypes);
+            throw ipe;
+        }
+        
+        // Stores whether the user is an admin in a boolean value for easy access
+        final boolean userIsAdmin = RoleUtil.isAdmin(u);
+        
+        // Sorts the stack, prioritising the appropriate permissions
+        stack.sort((Method m1, Method m2) -> {
+            boolean m1IsAdmin = m1.isAnnotationPresent(NoAdmin.class);
+            return userIsAdmin ? (m1IsAdmin ? 1 : -1) : (m1IsAdmin ? -1 : 1);
+        });
+        
+        // Loops through the appropriate methods
+        for(Method m : stack) {
+            
+            // If the method does not match the restrictions, skips it
+            if(!matchesRestrictions(m, args)) {
+                continue;
+            }
+            
+            // If a non-admin is trying to execute an admin command,
+            // stops them
             if(!m.isAnnotationPresent(NoAdmin.class)) {
-                if(!RoleUtil.isAdmin(u)) {
+                if(!userIsAdmin) {
                     throw new PermissionException();
                 }
             }
             
-            // Tries to execute the command
+            // Executes the command
             com.setTextChannel(tc);
             com.setUser(u);
+            
             try {
                   m.invoke(com, args);
             } catch (IllegalAccessException | IllegalArgumentException e) {
@@ -110,13 +147,84 @@ public class ParserUtils {
                 throw e.getTargetException();
             }
             
+            // Terminates method
             return;
+            
         }
         
-        // The command was found, but the parameters did not match
-        InvalidParametersException ipe = new InvalidParametersException();
-        ipe.setFoundParameters(argTypes);
-        throw ipe;
+        // No method was found, that fit the given restrictions
+        String message = "Try the following:\n";
+        for(Method m : stack) {
+            
+            if(!userIsAdmin && !m.isAnnotationPresent(NoAdmin.class)) {
+                continue;
+            }
+            
+            message += ">";
+            message += c.getSimpleName().toLowerCase();
+            message += " ";
+            
+            ArgNames argNames = m.getAnnotation(ArgNames.class);
+            String[] names    = (argNames == null) ? new String[] {} : argNames.names();
+            
+            Class<?>[] aTypes = m.getParameterTypes();
+            for(int i = 0; i < aTypes.length; i++) {
+                String param = "";
+                
+                param += "<";
+                param += FriendlyTypeName.getFriendlyName(aTypes[i]);
+                if(i < names.length) {
+                    param += " ";
+                    param += names[i];
+                }
+                
+                int index = 0;
+                
+                if(m.isAnnotationPresent(Restricted.class)) {
+                    for(Restricted r : m.getAnnotationsByType(Restricted.class)) {
+                        if(r.index() == i || index == i) {
+                            
+                            if(aTypes[i].equals(Integer.class)) {
+                                if(r.range().length > 0) {
+                                    Restricted.Range range = r.range()[0];
+                                    
+                                    param += " ";
+                                    param += "[" + range.min() + "-" + range.max() + "]";
+                                }
+                            }
+                            
+                            if(aTypes[i].equals(Mode.class)) {
+                                if(r.modes().length > 0) {
+                                    Restricted.AllowedModes modes = r.modes()[0];
+                                    
+                                    param += " ";
+                                    boolean first = true;
+                                    for(String s : modes.value()) {
+                                        if(first) {
+                                            first = false;
+                                        } else {
+                                            param += "|";
+                                        }
+                                        
+                                        param += s;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        index++;
+                    }
+                }
+                
+                param   += ">";
+                message += param + " ";
+            }
+            
+        }
+        
+        RestrictionException re = new RestrictionException(message);
+        throw re;
+        
     }
     
     /**
@@ -142,6 +250,66 @@ public class ParserUtils {
             } else throw new InvalidSyntaxException("");
         }
         return out.toArray();
+    }
+    
+    public static boolean matchesRestrictions(Method m, Object[] args) {
+        
+        Class<?>[] argTypes = new Class[args.length];
+        
+        for(int i = 0; i < args.length; i++) {
+            argTypes[i] = args[i].getClass();
+        }
+        
+        Restricted[] restrictions = m.getAnnotationsByType(Restricted.class);
+        for(int i = 0; i < restrictions.length; i++) {
+            Restricted r = restrictions[i];
+            int index = r.index() >= 0 ? r.index() : i;
+            
+            if(index >= args.length) {
+                continue;
+            }
+            
+            if(r.modes().length != 0) {
+                if(argTypes[index] == Mode.class) {
+                    String s = ((Mode) (args[index])).getMode();
+                    Restricted.AllowedModes modes = r.modes()[0];
+                    
+                    boolean modeMatches = false;
+                    for(String mode : modes.value()) {
+                        if(mode.equalsIgnoreCase(s)) {
+                            modeMatches = true;
+                            break;
+                        }
+                    }
+                    
+                    if(!modeMatches) {
+                        return false;
+                    }
+                    
+                }
+                continue;
+            }
+            
+            if(r.range().length != 0) {
+                if(argTypes[index] == Integer.class) {
+                    int in = ((int) (args[index]));
+                    Restricted.Range range = r.range()[0];
+                    
+                    boolean inclusive = range.inclusive();
+                    int min = range.min(), max = range.max();
+                    if(!(in > min && in < max)) {
+                        if(!(inclusive && (in == min || in == max))) {
+                            return false;
+                        }
+                    }
+                    
+                }
+                continue;
+            }
+            
+        }
+        
+        return true;
     }
 
 }

@@ -3,6 +3,7 @@ package com.chatboard.commands;
 import com.chatboard.annotation.*;
 import com.chatboard.commandparser.Command;
 import com.chatboard.commandparser.Commands;
+import com.chatboard.commandparser.Mode;
 import com.chatboard.util.RoleUtil;
 
 import net.dv8tion.jda.core.MessageBuilder;
@@ -36,5 +37,6 @@ public class Help extends Command {
         mb.appendCodeBlock(commands, "");
         getTextChannel().sendMessage(mb.build()).complete();
     }
+    
 
 }
