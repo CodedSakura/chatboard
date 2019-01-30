@@ -34,7 +34,7 @@ public class CommandFlowExecutor {
             // Invalid parameters were found
             String message = "No command found for parameters: ";
             Class<?>[] foundParameters = e.getFoundParameters();
-            if(foundParameters.length == 0) {
+            if(foundParameters == null || foundParameters.length == 0) {
                 message += "<none>";
             } else {
                 for(Class<?> c : foundParameters) {

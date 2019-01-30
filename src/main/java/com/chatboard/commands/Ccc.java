@@ -2,6 +2,7 @@ package com.chatboard.commands;
 
 import com.chatboard.annotation.Runner;
 import com.chatboard.commandparser.Command;
+import com.chatboard.exceptions.BotException;
 import com.chatboard.exceptions.InvalidParametersException;
 import com.chatboard.adapter.BotAdapter;
 import com.chatboard.annotation.*;
@@ -39,7 +40,7 @@ public class Ccc extends Command {
             }
             
             if(!legal) {
-                throw new InvalidParametersException("Illegal characters in command string");
+                throw new BotException("Illegal characters in command string");
             }
         }
         
