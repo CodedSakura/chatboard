@@ -17,7 +17,8 @@ public class BotAdapter extends ListenerAdapter {
         CommandFlowExecutor.executeCommandFlow(message, evt.getChannel(), evt.getAuthor());
     }
     
-    private static String commandCharacter = ">";
+    private static final String ORIGINAL_CC      = ">";
+    private static       String commandCharacter = ORIGINAL_CC;
     
     public static void setCommandCharacter(String cc) {
         if(cc == null || cc.length() == 0) {
@@ -28,6 +29,9 @@ public class BotAdapter extends ListenerAdapter {
     }
     public static String getCommandCharacter() {
         return new String(commandCharacter);
+    }
+    public static void resetCommandCharacter() {
+        commandCharacter = ORIGINAL_CC;
     }
 
 }

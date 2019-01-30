@@ -18,7 +18,8 @@ public enum Commands {
     HELP (Help.class),
     D20  (null),
     PING (Ping.class),
-    NOAD (Noad.class);
+    NOAD (Noad.class),
+    CCC  (Ccc.class);
     
     
     
