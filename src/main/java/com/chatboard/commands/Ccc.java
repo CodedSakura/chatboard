@@ -28,7 +28,8 @@ public class Ccc extends Command {
         mb.append("`" + BotAdapter.getCommandCharacter() + "`" + " ");
         mb.append("to `" + cc + "`");
         
-        char[] allowedCharacters = {'>', '<', '!', '_', '!', '.', '#', ':', ';', '[', ']', '|', '(', ')', '='};
+        char[] allowedCharacters = {'>', '<', '!', '_', '!', '.', '#', ':',
+                                    ';', '[', ']', '|', '(', ')', '=', '$'};
         for(int i = 0; i < cc.length(); i++) {
             boolean legal   = false;
             char    current = cc.charAt(i);
