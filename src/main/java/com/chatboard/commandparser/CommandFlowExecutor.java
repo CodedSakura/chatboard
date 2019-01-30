@@ -18,15 +18,20 @@ public class CommandFlowExecutor {
     
     public static void executeCommandFlow(String arguments, TextChannel tc, User u) {
         try {
+            // Gets the appropriate command, tries to run it
             Commands c = Commands.getMatchingCommand(arguments);
             c.run(arguments, tc, u);
         } catch(CommandNotFoundException e) {
+            // The command was not found
             sendErrorMessage("Command not found", "Try >help", tc, u);
             return;
         } catch(PermissionException e) {
+            // The user did not have an administrative permission, but tried to use
+            // an admin-only command
             sendErrorMessage("Insufficient permission", null, tc, u);
             return;
         } catch(InvalidParametersException e) {
+            // Invalid parameters were found
             String message = "No command found for parameters: ";
             Class<?>[] foundParameters = e.getFoundParameters();
             if(foundParameters.length == 0) {
@@ -41,9 +46,11 @@ public class CommandFlowExecutor {
             sendErrorMessage("Invalid parameters", message, tc, u);
             return;
         } catch(InvalidSyntaxException e) {
+            // Syntax error while parsing the command
             sendErrorMessage("Invalid command syntax", null, tc, u);
             return;
         } catch(BotException e) {
+            // Any other bot-related exception
             sendErrorMessage(e.getFriendlyName(), e.getMessage(), tc, u);
             return;
         } catch(Throwable e) {

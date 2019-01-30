@@ -7,6 +7,7 @@ public class Command {
     
     private User        contextUser;
     private TextChannel contextTextChannel;
+    private boolean     userIsAdmin;
     
     
     
@@ -21,6 +22,12 @@ public class Command {
     }
     public void setTextChannel(TextChannel textChannel) {
         this.contextTextChannel = textChannel;
+    }
+    public boolean getUserIsAdmin() {
+        return userIsAdmin;
+    }
+    public void setUserIsAdmin(boolean userIsAdmin) {
+        this.userIsAdmin = userIsAdmin;
     }
     
 }

@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.User;
 
 import java.lang.reflect.Method;
 
+import com.chatboard.adapter.BotAdapter;
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
@@ -16,7 +17,8 @@ public enum Commands {
     
     HELP (Help.class),
     D20  (null),
-    PING (Ping.class);
+    PING (Ping.class),
+    NOAD (Noad.class);
     
     
     
@@ -58,8 +60,8 @@ public enum Commands {
         }
         
         String c = command.split(" ")[0].toUpperCase();
-        if(c.startsWith(">")) {
-            c = c.substring(1);
+        if(c.startsWith(BotAdapter.getCommandCharacter())) {
+            c = c.substring(BotAdapter.getCommandCharacter().length());
         }
         for(Commands com : getAllCommands()) {
             if(com.toString().equals(c)) {
@@ -67,6 +69,9 @@ public enum Commands {
             }
         }
         throw new CommandNotFoundException();
+    }
+    public Class<? extends Command> getImplementingClass() {
+        return this.c;
     }
     
 }

@@ -8,6 +8,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.chatboard.adapter.BotAdapter;
 import com.chatboard.annotation.ArgNames;
 import com.chatboard.annotation.Disabled;
 import com.chatboard.annotation.NoAdmin;
@@ -21,7 +22,6 @@ import com.chatboard.exceptions.RestrictionException;
 import com.chatboard.wrapper.JDAWrapper;
 import com.chatboard.commandparser.Command;
 import com.chatboard.commandparser.FriendlyTypeName;
-import com.chatboard.commandparser.Mode;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -135,19 +135,21 @@ public class ParserUtils {
                 }
             }
             
-            // Executes the command
+            // Prepares for executing the command
             com.setTextChannel(tc);
             com.setUser(u);
+            com.setUserIsAdmin(userIsAdmin);
             
+            // Executes the command
             try {
-                  m.invoke(com, args);
+                m.invoke(com, args);
             } catch (IllegalAccessException | IllegalArgumentException e) {
                 return;
             } catch(InvocationTargetException e) {
                 throw e.getTargetException();
             }
             
-            // Terminates method
+            // Terminates the method
             return;
             
         }
@@ -156,67 +158,21 @@ public class ParserUtils {
         String message = "Try the following:\n";
         for(Method m : stack) {
             
+            // Skips admin methods for non-admin users
             if(!userIsAdmin && !m.isAnnotationPresent(NoAdmin.class)) {
                 continue;
             }
+            // Skips methods marked as disabled
+            if(m.isAnnotationPresent(Disabled.class)) {
+                continue;
+            }
             
-            message += ">";
+            // Gets the command name
+            message += BotAdapter.getCommandCharacter();
             message += c.getSimpleName().toLowerCase();
             message += " ";
             
-            ArgNames argNames = m.getAnnotation(ArgNames.class);
-            String[] names    = (argNames == null) ? new String[] {} : argNames.names();
-            
-            Class<?>[] aTypes = m.getParameterTypes();
-            for(int i = 0; i < aTypes.length; i++) {
-                String param = "";
-                
-                param += "<";
-                param += FriendlyTypeName.getFriendlyName(aTypes[i]);
-                if(i < names.length) {
-                    param += " ";
-                    param += names[i];
-                }
-                
-                int index = 0;
-                
-                if(m.isAnnotationPresent(Restricted.class)) {
-                    for(Restricted r : m.getAnnotationsByType(Restricted.class)) {
-                        if(r.index() == i || index == i) {
-                            
-                            if(aTypes[i].equals(Integer.class)) {
-                                if(r.range().length > 0) {
-                                    Restricted.Range range = r.range()[0];
-                                    
-                                    param += " ";
-                                    param += "[" + range.min() + "-" + range.max() + "]";
-                                }
-                            }
-                            
-                            if(aTypes[i].equals(Mode.class)) {
-                                if(r.modes().length > 0) {
-                                    Restricted.AllowedModes modes = r.modes()[0];
-                                    
-                                    param += " ";
-                                    boolean first = true;
-                                    for(String s : modes.value()) {
-                                        if(first) {
-                                            first = false;
-                                        } else {
-                                            param += "|";
-                                        }
-                                        
-                                        param += s;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                        index++;
-                    }
-                }
-                
-                param   += ">";
+            for(String param : getParameterRepresentations(m)) {
                 message += param + " ";
             }
             
@@ -225,6 +181,76 @@ public class ParserUtils {
         RestrictionException re = new RestrictionException(message);
         throw re;
         
+    }
+    
+    public static String[] getParameterRepresentations(Method m) {
+        
+        // Gets the parameter types for the method
+        Class<?>[] aTypes = m.getParameterTypes();
+        
+        // Tries to retrieve argument names, if present
+        ArgNames argNames = m.getAnnotation(ArgNames.class);
+        String[] names    = (argNames == null) ? new String[] {} : argNames.names();
+        
+        String[] output = new String[aTypes.length];
+        
+        for(int i = 0; i < aTypes.length; i++) {
+            String param = "";
+            
+            // Includes the parameter
+            param += "<";
+            param += FriendlyTypeName.getFriendlyName(aTypes[i]);
+            if(i < names.length) {
+                param += " ";
+                param += names[i];
+            }
+            
+            int index = 0;
+            
+            // Checks for restrictions
+            if(m.isAnnotationPresent(Restricted.class)) {
+                for(Restricted r : m.getAnnotationsByType(Restricted.class)) {
+                    if(r.index() == i || index == i) {
+                        
+                        // Restrictions on integers
+                        if(aTypes[i].equals(Integer.class)) {
+                            if(r.range().length > 0) {
+                                Restricted.Range range = r.range()[0];
+                                
+                                param += " ";
+                                param += "[" + range.min() + "-" + range.max() + "]";
+                            }
+                        }
+                        
+                        // Restrictions on strings
+                        if(aTypes[i].equals(String.class)) {
+                            if(r.modes().length > 0) {
+                                Restricted.AllowedModes modes = r.modes()[0];
+                                
+                                param += " ";
+                                boolean first = true;
+                                for(String s : modes.value()) {
+                                    if(first) {
+                                        first = false;
+                                    } else {
+                                        param += "|";
+                                    }
+                                    
+                                    param += s;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    index++;
+                }
+            }
+            
+            param   += ">";
+            output[i] = param;
+        }
+        
+        return output;
     }
     
     /**
@@ -242,7 +268,7 @@ public class ParserUtils {
                         .replaceAll("\\\\n", "\n")
                         .replaceAll("\\\\\"", "\""));
             } else if (d.matches("[a-zA-Z][a-zA-Z\\d]*")) {
-                out.add(new Mode(d));
+                out.add(d);
             } else if (d.matches("<@\\d{18}>")) {
                 out.add(JDAWrapper.getJDA().getUserById(d.replaceAll("^(<@)|>$", "")));
             } else if (d.matches("\\d+")) {
@@ -270,8 +296,8 @@ public class ParserUtils {
             }
             
             if(r.modes().length != 0) {
-                if(argTypes[index] == Mode.class) {
-                    String s = ((Mode) (args[index])).getMode();
+                if(argTypes[index] == String.class) {
+                    String s = ((String) (args[index]));
                     Restricted.AllowedModes modes = r.modes()[0];
                     
                     boolean modeMatches = false;

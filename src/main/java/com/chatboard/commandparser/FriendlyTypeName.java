@@ -17,10 +17,6 @@ public class FriendlyTypeName {
             return "INTEGER";
         }
         
-        if(c.equals(Mode.class)) {
-            return "MODE";
-        }
-        
         if(c.equals(User.class)) {
             return "USER";
         }

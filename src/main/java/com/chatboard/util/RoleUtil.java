@@ -12,11 +12,32 @@ public class RoleUtil {
     
     
     
+    private static boolean noAdMode = false;
+    
+    
+    
+    public static boolean isNoAdMode() {
+        return noAdMode;
+    }
+    public static void setNoAdMode(boolean noAdMode) {
+        RoleUtil.noAdMode = noAdMode;
+    }
+    
     public static boolean isAdmin(Member m) {
+        if(noAdMode) {
+            return false;
+        }
         return hasRole(m, "529767478260400157");
     }
     public static boolean isAdmin(User u) {
         return isAdmin(JDAWrapper.getGuild().getMember(u));
+    }
+    
+    public static boolean isAdminIgnoringNoAd(Member m) {
+        return hasRole(m, "529767478260400157");
+    }
+    public static boolean isAdminIgnoringNoAd(User u) {
+        return isAdminIgnoringNoAd(JDAWrapper.getGuild().getMember(u));
     }
     
     public static boolean hasRole(Member m, String roleId) {

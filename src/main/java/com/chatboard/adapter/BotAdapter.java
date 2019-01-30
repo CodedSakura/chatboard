@@ -10,11 +10,24 @@ public class BotAdapter extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent evt) {
         String message = evt.getMessage().getContentRaw();
         
-        if(!message.startsWith(">")) {
+        if(!message.startsWith(commandCharacter)) {
             return;
         }
         
         CommandFlowExecutor.executeCommandFlow(message, evt.getChannel(), evt.getAuthor());
+    }
+    
+    private static String commandCharacter = ">";
+    
+    public static void setCommandCharacter(String cc) {
+        if(cc == null || cc.length() == 0) {
+            throw new IllegalArgumentException();
+        }
+        
+        commandCharacter = cc;
+    }
+    public static String getCommandCharacter() {
+        return new String(commandCharacter);
     }
 
 }
