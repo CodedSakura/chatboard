@@ -30,6 +30,7 @@ public class Ccc extends Command {
         
         char[] allowedCharacters = {'>', '<', '!', '_', '!', '.', '#', ':',
                                     ';', '[', ']', '|', '(', ')', '=', '$'};
+        
         for(int i = 0; i < cc.length(); i++) {
             boolean legal   = false;
             char    current = cc.charAt(i);
