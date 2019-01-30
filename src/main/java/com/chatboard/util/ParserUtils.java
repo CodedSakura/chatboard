@@ -275,7 +275,13 @@ public class ParserUtils {
                 out.add(Integer.parseInt(d));
             } else throw new InvalidSyntaxException("");
         }
-        return out.toArray();
+        
+        Object[] output = out.toArray();
+        if(output == null) {
+            return new Object[] {};
+        }
+        
+        return output;
     }
     
     public static boolean matchesRestrictions(Method m, Object[] args) {
