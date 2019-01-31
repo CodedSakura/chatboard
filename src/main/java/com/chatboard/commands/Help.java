@@ -33,7 +33,7 @@ public class Help extends Command {
             if(commands.length() != 0) {
                 commands += "; ";
             }
-            commands += c.toString();
+            commands += c.getFriendlyName();
         }
         
         mb.appendCodeBlock(commands, "");
@@ -54,7 +54,7 @@ public class Help extends Command {
         MessageBuilder mb = new MessageBuilder();
         mb.append(getUser().getAsMention() + " ");
         mb.append("Help on the" + " ");
-        mb.append("`" + c.name() + "` command:");
+        mb.append("`" + c.getFriendlyName() + "` command:");
         
         String message = "";
         

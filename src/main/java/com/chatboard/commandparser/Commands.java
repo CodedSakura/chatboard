@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 
 import com.chatboard.adapter.BotAdapter;
 import com.chatboard.annotation.Disabled;
+import com.chatboard.annotation.Name;
 import com.chatboard.annotation.NoAdmin;
 import com.chatboard.annotation.Runner;
 import com.chatboard.commands.*;
@@ -15,11 +16,12 @@ import com.chatboard.util.ParserUtils;
 
 public enum Commands {
     
-    HELP (Help.class),
-    D20  (D20.class),
-    PING (Ping.class),
-    NOAD (Noad.class),
-    CCC  (Ccc.class);
+    HELP      (Help.class),
+    D20       (D20.class),
+    PING      (Ping.class),
+    NOAD      (Noad.class),
+    CCC       (Ccc.class),
+    EIGHTBALL (EightBall.class);
     
     
     
@@ -52,6 +54,10 @@ public enum Commands {
         }
         return false;
     }
+    public String getFriendlyName() {
+        return this.getImplementingClass().isAnnotationPresent(Name.class) ?
+                this.getImplementingClass().getAnnotation(Name.class).name() : this.toString();
+    }
     public static Commands[] getAllCommands() {
         return Commands.class.getEnumConstants();
     }
@@ -65,10 +71,17 @@ public enum Commands {
             c = c.substring(BotAdapter.getCommandCharacter().length());
         }
         for(Commands com : getAllCommands()) {
-            if(com.toString().equals(c)) {
+            
+            if(com.getDeclaringClass() == null) {
+                continue;
+            }
+            
+            if(com.getFriendlyName().equalsIgnoreCase(c)) {
                 return com;
             }
+            
         }
+        
         throw new CommandNotFoundException();
     }
     public Class<? extends Command> getImplementingClass() {

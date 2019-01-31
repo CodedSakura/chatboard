@@ -23,8 +23,9 @@ public class D20 extends Command {
                 ""
         });
         
-        message += " ";
+        message += " **";
         message += number;
+        message += "**";
         
         getTextChannel().sendMessage(message).complete();
         

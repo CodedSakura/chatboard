@@ -1,5 +1,6 @@
 package com.chatboard.commandparser;
 
+import com.chatboard.adapter.BotAdapter;
 import com.chatboard.exceptions.BotException;
 import com.chatboard.exceptions.CommandNotFoundException;
 import com.chatboard.exceptions.InvalidParametersException;
@@ -23,7 +24,7 @@ public class CommandFlowExecutor {
             c.run(arguments, tc, u);
         } catch(CommandNotFoundException e) {
             // The command was not found
-            sendErrorMessage("Command not found", "Try >help", tc, u);
+            sendErrorMessage("Command not found", "Try " + BotAdapter.getCommandCharacter() + "help", tc, u);
             return;
         } catch(PermissionException e) {
             // The user did not have an administrative permission, but tried to use
