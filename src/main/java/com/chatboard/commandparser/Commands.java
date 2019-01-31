@@ -16,7 +16,7 @@ import com.chatboard.util.ParserUtils;
 public enum Commands {
     
     HELP (Help.class),
-    D20  (null),
+    D20  (D20.class),
     PING (Ping.class),
     NOAD (Noad.class),
     CCC  (Ccc.class);

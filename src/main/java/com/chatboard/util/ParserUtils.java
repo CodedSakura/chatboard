@@ -284,6 +284,9 @@ public class ParserUtils {
         return output;
     }
     
+    /**
+     * Checks whether a set of given arguments match a method's restrictions
+     */
     public static boolean matchesRestrictions(Method m, Object[] args) {
         
         Class<?>[] argTypes = new Class[args.length];

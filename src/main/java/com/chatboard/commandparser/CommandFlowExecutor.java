@@ -59,6 +59,9 @@ public class CommandFlowExecutor {
         }
     }
     
+    /**
+     * Constructs and sends an error message
+     */
     private static void sendErrorMessage(String errorText, String subText, TextChannel tc, User u) {
         MessageBuilder mb = new MessageBuilder();
         mb.append(u.getAsMention());
